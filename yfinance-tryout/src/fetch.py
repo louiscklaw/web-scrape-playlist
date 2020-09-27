@@ -6,8 +6,19 @@ from string import Template
 import datetime
 import random
 import time
+import tempfile
+
+from subprocess import run
+import shlex
 
 import yfinance as yf
+
+SRC_DIR=os.path.dirname(os.path.abspath(__file__))
+PROJ_HOME=os.path.abspath(SRC_DIR+'/..')
+
+STOCK_LIST_TXT_FILEPATH=PROJ_HOME+'/stock_list.txt'
+
+run(shlex.split('touch /tmp/test.html'))
 
 html_template=Template('''
 <!DOCTYPE html>
@@ -102,12 +113,18 @@ def getWholeTable(stock_infos):
   )
 
 
+
+
+
 while True:
   text_stock_list = ''
-  with open('./stock_list.txt','r') as fi:
-    text_stock_list = map(lambda y: y.strip(),
-      filter(lambda x: x!='', fi.readlines())
-    )
+  file_content = ''
+  with open(STOCK_LIST_TXT_FILEPATH,'r') as fi:
+    file_content=fi.readlines()
+
+  text_stock_list = map(lambda y: y.strip(),
+    filter(lambda x: x!='', file_content)
+  )
 
   begin_time = datetime.datetime.now()
 
@@ -115,14 +132,11 @@ while True:
   last_successful_fetch = []
   temp_html=''
   last_successful_html = ''
-  try:
 
+  try:
     stock_list = [yf.Ticker(text_stock_code) for text_stock_code in text_stock_list]
 
     last_successful_fetch= stock_list.copy()
-
-
-
 
     # get stock info
     temp_html = getWholeTable(stock_list)
@@ -130,14 +144,16 @@ while True:
 
   except Exception as e:
     stock_list = last_successful_fetch.copy()
-    temp_html = last_successful_html
+#     temp_html = last_successful_html
+
+#   print(temp_html)
+
+#   run_take_time = datetime.datetime.now() - begin_time
+
+#   with open('/tmp/test.html','r+') as fo:
+#     fo.truncate(0)
+#     fo.write(temp_html)
 
 
-  run_take_time = datetime.datetime.now() - begin_time
-
-  with open('/tmp/test.html','r+') as fo:
-    fo.truncate(0)
-    fo.write(temp_html)
-
-  print('done, last run takes {}, sleeping'.format(run_take_time))
-  time.sleep(3)
+#   print('done, last run takes {}, sleeping'.format(run_take_time))
+#   time.sleep(3)

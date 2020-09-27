@@ -4,4 +4,4 @@ set -ex
 
 cd src
   pipenv sync
-  nodemon -w . -e * --exec "pipenv run python3 fetch.py"
+  nodemon -w . -e "py,txt,html" --exec "pipenv run python3 fetch.py"
